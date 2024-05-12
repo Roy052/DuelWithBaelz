@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3399125692390654784
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3399125692390654786}
+  - component: {fileID: 3399125692390654785}
+  m_Layer: 0
+  m_Name: ImageManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3399125692390654786
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3399125692390654784}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3399125692390654785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3399125692390654784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d63bdd3608522143852e241a57c1616, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sideSprites:
+  - {fileID: 21300000, guid: b48ba3eb66ceed6478d08d651210b942, type: 3}
+  - {fileID: 21300000, guid: 6deda5a66a0eb4f48b144de331e9f944, type: 3}
+  - {fileID: 21300000, guid: 220b950f99dd71649aaa0e6916bce836, type: 3}
+  - {fileID: 21300000, guid: 1c8f7b8a4aea73e4f91a072881737768, type: 3}
+  - {fileID: 21300000, guid: f234ceed9f7532d499e29421b6406feb, type: 3}
+  - {fileID: 21300000, guid: 191e9e414393d324dbe9df6bc2dbb713, type: 3}
+  typeSprites:
+  - {fileID: 21300000, guid: 69acb3a037f100a4e8286ffc7665e07e, type: 3}
+  - {fileID: 21300000, guid: d1857efc5fa00bb4dba8e93070edd3a7, type: 3}
+  - {fileID: 21300000, guid: d1857efc5fa00bb4dba8e93070edd3a7, type: 3}
+  portraitSprites:
+  - {fileID: 21300000, guid: ea74476dee62e494abbbe8397a15efef, type: 3}
+  - {fileID: 21300000, guid: 6a085d93ac9e8f143ac340cc1dc87c5f, type: 3}
+  - {fileID: 21300000, guid: 8fa4ad1f38b78704684f4c8ccedd776e, type: 3}
+  - {fileID: 21300000, guid: 2a06a8af7cd4a26438fe05151158237c, type: 3}
+  - {fileID: 21300000, guid: 1381807e489aeb6479f87d0581b1b9a2, type: 3}
