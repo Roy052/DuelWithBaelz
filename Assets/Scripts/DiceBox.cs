@@ -69,4 +69,20 @@ public class DiceBox : MonoBehaviour
 
         return diceValues[idx];
     }
+
+    public void AddDice(int count, bool currentActive)
+    {
+        int current = diceCount;
+        diceCount += count;
+
+        if (currentActive)
+        {
+            for (int i = current; i < diceCount; i++)
+            {
+                diceValues[i] = Random.Range(1, 7);
+                dices[i].Roll(diceValues[i]);
+                dices[i].SetActive(true);
+            }
+        }
+    }
 }

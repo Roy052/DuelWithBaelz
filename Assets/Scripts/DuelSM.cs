@@ -13,6 +13,18 @@ public class GameResult
     public int duration;
 }
 
+public enum GameState
+{
+    BeforeStart = 0,
+    SetDiceNum = 1,
+    GetItem = 2,
+    InChoice = 3,
+    InDecision = 4,
+    BaelzThinking = 5,
+    InJudge = 6,
+    ChangingDice = 7,
+}
+
 public class DuelSM : Singleton
 {
     const string TutorialKey = "DuelWithBaelz_IsTutorialPlayed";
@@ -24,6 +36,8 @@ public class DuelSM : Singleton
         Success = 0,
         Failed = 1,
     }
+
+    public GameState gameState = GameState.BeforeStart;
 
     public Text textRoundBig;
     public Text textRound;
@@ -49,6 +63,13 @@ public class DuelSM : Singleton
     public Text textMyDiceCount;
 
     public bool isCurrentJobEnded;
+
+    //Right
+    public ItemManager enemyItemManager;
+    public ItemManager myItemManager;
+    public GameObject objCheckedDiceBox;
+    public Dice checkedDice;
+    public Text textCheckedLabel;
 
     //Challenge
     public Image imgChallenge;
@@ -128,10 +149,16 @@ public class DuelSM : Singleton
         textMyDiceCount.SetActive(false);
 
         objSkipTutorial.SetActive(false);
+
+        //Right
+        myItemManager.Reset();
+        enemyItemManager.Reset();
+        objCheckedDiceBox.SetActive(false);
     }
 
     IEnumerator GameProcess()
     {
+        gameState = GameState.BeforeStart;
         ReSetUI();
         gameResult = new GameResult();
         gameResult.startTime = System.DateTime.Now;
@@ -191,9 +218,19 @@ public class DuelSM : Singleton
         textRound.text = $"Round {roundNum}";
         yield return StartCoroutine(FadeManager.FadeIn(textRound, 1));
 
+        gameState = GameState.SetDiceNum;
         enemyDiceBox.diceCount = roundNum;
         myDiceBox.diceCount = gameManager.mode == GameMode.OneDice ? 1 : roundNum;
 
+        if(roundNum >= 2 && playTutorial == (int)TutorialProcess.UsingItem)
+        {
+            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.UsingItem));
+            playTutorial = (int)TutorialProcess.UsingItem;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.EndTutorial);
+        }
+
+        gameState = GameState.GetItem;
+        yield return StartCoroutine(AddItem(roundNum));
         for (int i = 0; i < roundNum * 2; i++)
         {
             yield return StartCoroutine(SingleProcess(roundNum));
@@ -251,6 +288,11 @@ public class DuelSM : Singleton
             yield return Utilities.WaitForOneSecond;
 
             if (isMyChoice)
+                gameState = GameState.InChoice;
+            else
+                gameState = GameState.InDecision;
+
+            if (isMyChoice)
             {
                 //Before Dice
                 if (playTutorial <= (int)TutorialProcess.BeforeShowChoiceCard)
@@ -272,6 +314,7 @@ public class DuelSM : Singleton
 
             if (isChallengeStarted)
             {
+                gameState = GameState.InJudge;
                 audioManager.bgmAudioSource.Pause();
                 audioManager.PlaySFX(AudioManager.SFX.Challenge);
                 yield return StartCoroutine(FadeManager.FadeIn(imgChallenge, 1));
@@ -315,6 +358,7 @@ public class DuelSM : Singleton
         yield return new WaitUntil(() => isCurrentJobEnded);
         isCurrentJobEnded = false;
 
+        gameState = GameState.BaelzThinking;
         choiceBox.Hide();
         enemyAI.Decide();
 
@@ -323,10 +367,12 @@ public class DuelSM : Singleton
 
         yield return new WaitUntil(() => isCurrentJobEnded);
         isCurrentJobEnded = false;
+        gameState = GameState.InChoice;
     }
 
     IEnumerator SelectDecision()
     {
+        gameState = GameState.BaelzThinking;
         yield return null;
         enemyAI.Choose();
 
@@ -336,6 +382,7 @@ public class DuelSM : Singleton
         yield return new WaitUntil(() => isCurrentJobEnded);
         isCurrentJobEnded = false;
 
+        gameState = GameState.InDecision;
         if (playTutorial <= (int)TutorialProcess.BeforeShowDecision)
         {
             yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.BeforeShowDecision));
@@ -412,8 +459,8 @@ public class DuelSM : Singleton
         if (playTutorial <= (int)TutorialProcess.InJudge)
         {
             yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.InJudge));
-            playTutorial = (int)TutorialProcess.EndTutorial;
-            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.EndTutorial);
+            playTutorial = (int)TutorialProcess.UsingItem;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.UsingItem);
         }
 
         if ((isMyChoice && isChallengeSuccess == false) || (isMyChoice == false && isChallengeSuccess))
@@ -473,6 +520,20 @@ public class DuelSM : Singleton
             yield return Utilities.WaitForHalfSecond;
             idx++;
         }
+    }
+
+
+    IEnumerator AddItem(int round)
+    {
+        if (round / 2 == 0)
+            yield break;
+        audioManager.PlaySFX(AudioManager.SFX.Z_Beep);
+        for(int i = 0; i < round / 2; i++)
+        {
+            enemyItemManager.AddItem((ItemType)Random.Range(0, (int)ItemType.DiceofWitness));
+            myItemManager.AddItem((ItemType)Random.Range(0, (int)ItemType.DiceofWitness));
+        }
+        yield return Utilities.WaitForOneSecond;
     }
 
     public void ShowDiceBoxes()
@@ -579,5 +640,14 @@ public class DuelSM : Singleton
         textThinking.text = Texts.thinkingLabels[(int)OptionList.languageType];
         textRetry.text = Texts.retryLabels[(int)OptionList.languageType];
         textMenu.text = Texts.exitLabels[(int)OptionList.languageType];
+        textCheckedLabel.text = Texts.checkedDiceLabels[(int)OptionList.languageType];
+    }
+
+    public void AddDice(bool isPlayer, int count)
+    {
+        if (isPlayer)
+            myDiceBox.AddDice(count, gameState != GameState.InJudge || gameState != GameState.BaelzThinking);
+        else
+            enemyDiceBox.AddDice(count, gameState != GameState.InJudge || gameState != GameState.BaelzThinking);
     }
 }

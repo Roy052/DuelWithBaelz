@@ -31,7 +31,8 @@ public class AudioManager : Singleton
         TikTik,
         WazzUp,
         WazzUp1,
-        WitnessMe
+        WitnessMe,
+        Z_Beep
     }
 
     public AudioSource bgmAudioSource;

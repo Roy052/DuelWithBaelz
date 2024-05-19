@@ -71,6 +71,12 @@ public class Texts
         "메뉴로"
     };
 
+    public static string[] checkedDiceLabels =
+    {
+        "Checked Dice",
+        "확인한 주사위"
+    };
+
     public static string[,] messageGameOver = new string[,] {
         { "One more?", "한 판 더?" },
         { "It's so close.", "아깝네" },
@@ -105,6 +111,7 @@ public class Texts
             {"Third, If you think card text may not be true", "You can challenge to press button.", "Or just pass.", ""},
             {"In this time, We have to judge this condition by showing our dice", "If challenge success The one who choose card lose one dice.", "If challenge failed, opponents lose one dice", ""},
             {"Fourth, If all of your dice is gone, you lose this game", "But if all of my dice is gone, you're moving to the next round", "After 5 rounds, You finally clear this game", "Good luck" },
+            {"You can get up to 4 items during the game", "Your items are displayed in the lower right corner.", "If you bring the mouse to the item, you can see the explanation", "and you can click on the item to use it." }
         },
         {
 
@@ -115,6 +122,7 @@ public class Texts
             {"다음, 상대방이 제시한 조건이 사실이 아니라고 생각할 경우", "도전 버튼을 눌러 상대방에게 도전 할 수 있습니다.", "아니라면 넘기시면 됩니다.", ""},
             {"도전한 경우, 서로의 주사위를 공개하고 조건이 성립하는지 확인합니다", "도전에 성공한 경우, 조건을 선택한 사람은 주사위를 1개 잃습니다.", "도전에 실패한 경우, 상대방이 주사위를 1개 잃습니다.", ""},
             {"마지막으로, 당신의 모든 주사위를 잃으면 게임에서 패배합니다.", "만약 벨즈의 주사위를 모두 잃으면 다음 라운드로 이동합니다.", "5라운드를 승리한 경우, 게임에서 승리합니다.", "행운을 빕니다."},
+            {"게임 중 아이템을 최대 4개까지 획득할 수 있습니다.", "획득한 아이템은 오른쪽 하단에 표시됩니다.", "아이템에 마우스를 가져다 대면 설명이 나오고", "아이템을 클릭해 사용할 수 있습니다." }
         },
     };
 
@@ -132,5 +140,23 @@ public class Texts
             "주사위 점수",
             "시간 점수"
         }
+    };
+
+    public static string[,] itemNames =
+    {
+        { "Magnifying Glass", "돋보기" },
+        { "Wood Dice", "나무 주사위" },
+        { "Shark Teeth", "상어 이빨" },
+        { "Watch", "시계" },
+        { "Dice of Witness", "목도의 주사위" },
+    };
+
+    public static string[,] itemDescs =
+    {
+        { "Check the dice of the other person", "상대방 주사위를 1개 확인합니다." },
+        { "Add 1 dice\n(Maximum amount of dice is 5, Can't use this during the challenge)", "주사위를 1개 추가합니다. (주사위 최대 5개, 도전 중 사용 불가)" },
+        { "During this turn, 1 additional dice will be lost if someone lose.", "이번 턴 동안 패배시 잃는 주사위가 1개 추가됩니다." },
+        { "Roll one dice again.", "주사위 1개를 다시 굴립니다." },
+        { "Check the other person's dice except one." , "상대의 주사위 1개를 제외하고 전부 확인합니다." },
     };
 }

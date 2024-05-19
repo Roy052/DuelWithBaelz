@@ -12,7 +12,8 @@ public enum TutorialProcess
     BeforeShowDecision = 4,
     AfterShowDecision = 5,
     InJudge = 6,
-    EndTutorial = 7,
+    UsingItem = 7,
+    EndTutorial = 8,
 }
 
 public class TutorialHelper : MonoBehaviour
