@@ -14,6 +14,7 @@ public class ItemManager : Singleton, IPointerExitHandler
 
     List<Item> items = new List<Item>();
     Vector3 pos = Vector3.zero;
+    int currentItemCount = 0;
 
     private void Start()
     {
@@ -27,21 +28,32 @@ public class ItemManager : Singleton, IPointerExitHandler
 
     public void AddItem(ItemType type)
     {
-        if (items.Count >= MaxAmmount)
+        if (currentItemCount >= MaxAmmount)
             return;
 
-        GameObject temp = Instantiate(objItem, objItem.transform.parent);
-        Item tempItem = temp.GetComponent<Item>();
+        if(currentItemCount >= items.Count)
+        {
+            GameObject temp = Instantiate(objItem, objItem.transform.parent);
+            items.Add(temp.GetComponent<Item>());
+        }
+
+        Item tempItem = items[currentItemCount];
         tempItem.Set(type, this, items.Count);
-        items.Add(tempItem);
-        temp.SetActive(true);
+        tempItem.SetActive(true);
+        currentItemCount++;
     }
 
     public void UseItem(int idx)
     {
+        if(idx >= currentItemCount)
+        {
+            Debug.LogError($"{idx} > {currentItemCount} Error");
+            return;
+        }
         switch (items[idx].type)
         {
             case ItemType.MagnifyingGlass:
+                duelSM.CheckEnemyDice(isPlayer, 1);
                 break;
             case ItemType.WoodDice:
                 if (duelSM.gameState == GameState.InJudge)
@@ -49,12 +61,17 @@ public class ItemManager : Singleton, IPointerExitHandler
                 duelSM.AddDice(isPlayer, 1);
                 break;
             case ItemType.SharkTeeth:
+                duelSM.AddDamage(1);
                 break;
             case ItemType.Watch:
                 break;
             case ItemType.DiceofWitness:
                 break;
         }
+
+        items[idx].SetActive(false);
+        currentItemCount--;
+        tooltip.Hide();
     }
 
     public void Reset()

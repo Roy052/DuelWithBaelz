@@ -57,6 +57,8 @@ public class DuelSM : Singleton
     public EnemyAI enemyAI;
     public Image imgEnemyLoseDice;
     public Image imgMyLoseDice;
+    public Text textEnemyLoseDice;
+    public Text textMyLoseDice;
     public Text textMyName;
 
     public Text textEnemyDiceCount;
@@ -106,6 +108,7 @@ public class DuelSM : Singleton
 
     int playTutorial = 0;
     bool checkTutorial = false;
+    int currentDmg = 1;
 
     private void Awake()
     {
@@ -204,6 +207,12 @@ public class DuelSM : Singleton
             playTutorial = (int)TutorialProcess.RollDice;
             PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.RollDice);
         }
+
+        currentDmg = gameManager.mode == GameMode.LoseDouble ? 2 : 1;
+        textEnemyLoseDice.text = $"-{currentDmg}";
+        textMyLoseDice.text = $"-{currentDmg}";
+
+        objCheckedDiceBox.SetActive(false);
 
         textRound.text = "";
         imgEnemyPortrait.sprite = imageManager.portraitSprites[roundNum - 1];
@@ -649,5 +658,26 @@ public class DuelSM : Singleton
             myDiceBox.AddDice(count, gameState != GameState.InJudge || gameState != GameState.BaelzThinking);
         else
             enemyDiceBox.AddDice(count, gameState != GameState.InJudge || gameState != GameState.BaelzThinking);
+    }
+
+    public void CheckEnemyDice(bool isPlayer, int count)
+    {
+        if (isPlayer)
+        {
+            int value = enemyDiceBox.GetValue(0);
+            checkedDice.Roll(value);
+            checkedDice.SetActive(true);
+        }
+        else
+        {
+
+        }
+    }
+
+    public void AddDamage(int dmg)
+    {
+        currentDmg += dmg;
+        textEnemyLoseDice.text = $"-{currentDmg}";
+        textMyLoseDice.text = $"-{currentDmg}";
     }
 }
