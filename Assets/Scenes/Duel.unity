@@ -2163,6 +2163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MistakeValue: 0.15
+  itemManager: {fileID: 0}
 --- !u!114 &307907802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2415,11 +2416,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 4
+    m_Left: 5
+    m_Right: 5
+    m_Top: 5
+    m_Bottom: 5
+  m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 120, y: 120}
@@ -3776,7 +3777,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 160, y: -160}
+  m_AnchoredPosition: {x: 60, y: -60}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &629616261
@@ -4769,9 +4770,6 @@ MonoBehaviour:
   myDiceBox: {fileID: 1666751250}
   choiceBox: {fileID: 1372439790}
   decisionBox: {fileID: 1750905048}
-  spriteLoseDices:
-  - {fileID: 21300000, guid: ac99124681ee7aa4e8a48d66e4ab1631, type: 3}
-  - {fileID: 21300000, guid: 053f0edfe5435634d9a308be2e41c66a, type: 3}
   imgEnemyPortrait: {fileID: 1574285599}
   textEnemyName: {fileID: 1603248759}
   enemyAI: {fileID: 1574285598}
@@ -4800,6 +4798,7 @@ MonoBehaviour:
   textGameOver: {fileID: 81156073}
   thinkingBox: {fileID: 1606233516}
   textThinking: {fileID: 362087858}
+  textBaelzItemUse: {fileID: 0}
   tutorialHelper: {fileID: 1160638943}
   objCursor: {fileID: 1745520610}
   objTextBox: {fileID: 1136748001}
@@ -4811,6 +4810,8 @@ MonoBehaviour:
   textMenu: {fileID: 196638536}
   imageSword: {fileID: 329642668}
   scoreBox: {fileID: 1070007284}
+  roundNum: 0
+  turnNum: 0
   isChallengeStarted: 0
 --- !u!4 &956796081
 Transform:
@@ -6504,7 +6505,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ac99124681ee7aa4e8a48d66e4ab1631, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 44f3d4ede6781d24393e644788e2ebf7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7989,6 +7990,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MistakeValue: 0.15
+  itemManager: {fileID: 347240047}
 --- !u!114 &1574285599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10017,7 +10019,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10961c807dc260c4795da63d648197ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isPlayer: 0
+  isPlayer: 1
   objItem: {fileID: 629616259}
   tooltip: {fileID: 514777510}
 --- !u!114 &1896573155
@@ -10033,11 +10035,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 4
+    m_Left: 5
+    m_Right: 5
+    m_Top: 5
+    m_Bottom: 5
+  m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 120, y: 120}
@@ -10119,7 +10121,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 160, y: -160}
+  m_AnchoredPosition: {x: 60, y: -60}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1908583841

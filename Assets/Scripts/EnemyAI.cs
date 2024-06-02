@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyAI : Singleton
 {
     public float MistakeValue = 0.15f;
+    public ItemManager itemManager;
 
     Dictionary<(int, int), float> probSumValues = new Dictionary<(int, int), float>();
     Dictionary<(int, int), float> probRatValues = new Dictionary<(int, int), float>();
@@ -91,6 +92,8 @@ public class EnemyAI : Singleton
 
     public void Decide()
     {
+        DecideToUseItem();
+
         var data = choiceDatas.GetCurrentChoiceData();
         float randValue = 0;
         int diceAmmount;
@@ -128,6 +131,7 @@ public class EnemyAI : Singleton
 
     public void Choose()
     {
+        DecideToUseItem();
         StartCoroutine(WaitForChoose());
     }
 
@@ -167,5 +171,19 @@ public class EnemyAI : Singleton
         }
 
         duelSM.choiceBox.Choice(maxIdx);
+    }
+
+    public void DecideToUseItem()
+    {
+        float rate = 0f;
+        rate += duelSM.turnNum * 0.08f;
+        rate += (duelSM.roundNum - duelSM.enemyDiceBox.diceCount) * 0.1f;
+
+        bool isUse = Random.Range(0, 1f) <= rate;
+
+        if (isUse == false)
+            return;
+
+        itemManager.UseRandomItem();
     }
 }

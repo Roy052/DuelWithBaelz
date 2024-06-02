@@ -51,7 +51,6 @@ public class DuelSM : Singleton
     public DecisionBox decisionBox;
 
     //Left
-    public Sprite[] spriteLoseDices;
     public Image imgEnemyPortrait;
     public Text textEnemyName;
     public EnemyAI enemyAI;
@@ -87,6 +86,8 @@ public class DuelSM : Singleton
     public ThinkingBox thinkingBox;
     public Text textThinking;
 
+    public Text textBaelzItemUse;
+
     //Tutorials
     public TutorialHelper tutorialHelper;
     public GameObject objCursor;
@@ -105,6 +106,9 @@ public class DuelSM : Singleton
     public ScoreBox scoreBox;
 
     public GameResult gameResult;
+
+    public int roundNum = 0;
+    public int turnNum = 0;
 
     int playTutorial = 0;
     bool checkTutorial = false;
@@ -168,9 +172,6 @@ public class DuelSM : Singleton
 
         conditionDatas.Set();
 
-        imgEnemyLoseDice.sprite = spriteLoseDices[gameManager.mode == GameMode.LoseDouble ? 1 : 0];
-        imgMyLoseDice.sprite = spriteLoseDices[gameManager.mode == GameMode.LoseDouble ? 1 : 0];
-
         yield return null;
         //playTutorial = PlayerPrefs.GetInt(TutorialKey, 0);
 
@@ -182,6 +183,7 @@ public class DuelSM : Singleton
 
         for (int i = 1; i <= 5; i++)
         {
+            roundNum = i;
             enemyAI.MistakeValue = 0.15f - (i * 0.2f);
             yield return StartCoroutine(RoundProcess(i));
 
@@ -240,6 +242,8 @@ public class DuelSM : Singleton
 
         gameState = GameState.GetItem;
         yield return StartCoroutine(AddItem(roundNum));
+
+        turnNum = 0;
         for (int i = 0; i < roundNum * 2; i++)
         {
             yield return StartCoroutine(SingleProcess(roundNum));
@@ -288,6 +292,7 @@ public class DuelSM : Singleton
 
         while (true)
         {
+            turnNum++;
             isMyChoice = !isMyChoice;
 
             Vector3 tempScale = imageSword.transform.localScale;
@@ -474,7 +479,7 @@ public class DuelSM : Singleton
 
         if ((isMyChoice && isChallengeSuccess == false) || (isMyChoice == false && isChallengeSuccess))
         {
-            enemyDiceBox.diceCount -= gameManager.mode == GameMode.LoseDouble ? 2 : 1;
+            enemyDiceBox.diceCount -= currentDmg;
             audioManager.PlayBaelzLose();
             imgEnemyLoseDice.SetActive(true);
             yield return new WaitForSeconds(0.2f);
@@ -483,7 +488,7 @@ public class DuelSM : Singleton
         }
         else
         {
-            myDiceBox.diceCount -= gameManager.mode == GameMode.LoseDouble ? 2 : 1;
+            myDiceBox.diceCount -= currentDmg;
             audioManager.PlayMeLose();
 
             imgMyLoseDice.SetActive(true);
@@ -679,5 +684,21 @@ public class DuelSM : Singleton
         currentDmg += dmg;
         textEnemyLoseDice.text = $"-{currentDmg}";
         textMyLoseDice.text = $"-{currentDmg}";
+    }
+
+    public void Reroll(bool isPlayer, int idx)
+    {
+        if (isPlayer)
+            myDiceBox.Reroll(idx);
+        else
+            enemyDiceBox.Reroll(idx);
+    }
+
+    public void NoticeEnemyItem(ItemType type)
+    {
+        if (OptionList.languageType == LanguageType.English)
+            textBaelzItemUse.text = Texts.baelzItemUseDesc_Eng_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.baelzItemUseDesc_Eng_End;
+        else if (OptionList.languageType == LanguageType.Korean)
+            textBaelzItemUse.text = Texts.baelzItemUseDesc_Eng_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.baelzItemUseDesc_Kor_End;
     }
 }

@@ -38,13 +38,16 @@ public class ItemManager : Singleton, IPointerExitHandler
         }
 
         Item tempItem = items[currentItemCount];
-        tempItem.Set(type, this, items.Count);
+        tempItem.Set(type, this, currentItemCount);
         tempItem.SetActive(true);
         currentItemCount++;
     }
 
     public void UseItem(int idx)
     {
+        if (isPlayer == false)
+            return;
+
         if(idx >= currentItemCount)
         {
             Debug.LogError($"{idx} > {currentItemCount} Error");
@@ -97,5 +100,12 @@ public class ItemManager : Singleton, IPointerExitHandler
         //Debug.Log(I);
         
 
+    }
+
+    public void UseRandomItem()
+    {
+        int itemIdx = Random.Range(0, currentItemCount);
+        duelSM.NoticeEnemyItem(items[itemIdx].type);
+        UseItem(itemIdx);
     }
 }

@@ -85,4 +85,9 @@ public class DiceBox : MonoBehaviour
             }
         }
     }
+
+    public void Reroll(int idx)
+    {
+        dices[idx].Roll(Random.Range(1, 7));
+    }
 }

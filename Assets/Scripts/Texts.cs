@@ -159,4 +159,9 @@ public class Texts
         { "Roll one dice again.", "주사위 1개를 다시 굴립니다." },
         { "Check the other person's dice except one." , "상대의 주사위 1개를 제외하고 전부 확인합니다." },
     };
+
+    public static string baelzItemUseDesc_Eng_Front = "Baelz used item \"";
+    public static string baelzItemUseDesc_Eng_End   = "\"";
+    public static string baelzItemUseDesc_Kor_Front = "벨즈가 \"";
+    public static string baelzItemUseDesc_Kor_End   = "\" 아이템을 사용했습니다.";
 }
