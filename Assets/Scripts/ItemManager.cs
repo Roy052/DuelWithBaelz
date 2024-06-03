@@ -14,7 +14,6 @@ public class ItemManager : Singleton, IPointerExitHandler
 
     List<Item> items = new List<Item>();
     Vector3 pos = Vector3.zero;
-    int currentItemCount = 0;
 
     private void Start()
     {
@@ -28,19 +27,15 @@ public class ItemManager : Singleton, IPointerExitHandler
 
     public void AddItem(ItemType type)
     {
-        if (currentItemCount >= MaxAmmount)
+        if (items.Count >= MaxAmmount) 
             return;
 
-        if(currentItemCount >= items.Count)
-        {
-            GameObject temp = Instantiate(objItem, objItem.transform.parent);
-            items.Add(temp.GetComponent<Item>());
-        }
+        GameObject temp = Instantiate(objItem, objItem.transform.parent);
+        items.Add(temp.GetComponent<Item>());
 
-        Item tempItem = items[currentItemCount];
-        tempItem.Set(type, this, currentItemCount);
+        Item tempItem = items[items.Count];
+        tempItem.Set(type, this, items.Count);
         tempItem.SetActive(true);
-        currentItemCount++;
     }
 
     public void UseItem(int idx)
@@ -48,9 +43,9 @@ public class ItemManager : Singleton, IPointerExitHandler
         if (isPlayer == false)
             return;
 
-        if(idx >= currentItemCount)
+        if(idx >= items.Count)
         {
-            Debug.LogError($"{idx} > {currentItemCount} Error");
+            Debug.LogError($"{idx} > {items.Count} Error");
             return;
         }
         switch (items[idx].type)
@@ -72,9 +67,11 @@ public class ItemManager : Singleton, IPointerExitHandler
                 break;
         }
 
-        items[idx].SetActive(false);
-        currentItemCount--;
         tooltip.Hide();
+
+        duelSM.NoticeItemUse(isPlayer, items[idx].type);
+        Destroy(items[idx].gameObject);
+        items.RemoveAt(idx);
     }
 
     public void Reset()
@@ -104,8 +101,8 @@ public class ItemManager : Singleton, IPointerExitHandler
 
     public void UseRandomItem()
     {
-        int itemIdx = Random.Range(0, currentItemCount);
-        duelSM.NoticeEnemyItem(items[itemIdx].type);
+        int itemIdx = Random.Range(0, items.Count);
+        duelSM.NoticeItemUse(isPlayer, items[itemIdx].type);
         UseItem(itemIdx);
     }
 }

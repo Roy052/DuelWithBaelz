@@ -86,8 +86,6 @@ public class DuelSM : Singleton
     public ThinkingBox thinkingBox;
     public Text textThinking;
 
-    public Text textBaelzItemUse;
-
     //Tutorials
     public TutorialHelper tutorialHelper;
     public GameObject objCursor;
@@ -96,6 +94,10 @@ public class DuelSM : Singleton
     public Text textSkipTutorial;
     public Text textSkipTutorialYes;
     public Text textSkipTutorialNo;
+
+    //ItemUse
+    public Image imgMsgUseItem;
+    public Text textMsgUseItem;
 
     //Menu
     public Text textRetry;
@@ -694,11 +696,29 @@ public class DuelSM : Singleton
             enemyDiceBox.Reroll(idx);
     }
 
-    public void NoticeEnemyItem(ItemType type)
+    public void NoticeItemUse(bool isPlayer, ItemType type)
+    {
+        StartCoroutine(_NoticeItemUse(isPlayer, type));
+    }
+
+    IEnumerator _NoticeItemUse(bool isPlayer, ItemType type)
     {
         if (OptionList.languageType == LanguageType.English)
-            textBaelzItemUse.text = Texts.baelzItemUseDesc_Eng_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.baelzItemUseDesc_Eng_End;
+        {
+            if(isPlayer == false)
+                textMsgUseItem.text = Texts.baelzItemUseDesc_Eng_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.baelzItemUseDesc_Eng_End;
+            else
+                textMsgUseItem.text = Texts.playerItemUseDesc_Eng_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.playerItemUseDesc_Eng_End;
+        }
         else if (OptionList.languageType == LanguageType.Korean)
-            textBaelzItemUse.text = Texts.baelzItemUseDesc_Eng_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.baelzItemUseDesc_Kor_End;
+        {
+            if(isPlayer == false)
+                textMsgUseItem.text = Texts.baelzItemUseDesc_Kor_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.baelzItemUseDesc_Kor_End;
+            else
+                textMsgUseItem.text = Texts.playerItemUseDesc_Kor_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.playerItemUseDesc_Kor_End;
+        }
+        FadeManager.FadeIn(imgMsgUseItem, 1);
+        yield return Utilities.WaitForOneSecond;
+        FadeManager.FadeOut(imgMsgUseItem, 1);
     }
 }

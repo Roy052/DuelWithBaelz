@@ -164,4 +164,9 @@ public class Texts
     public static string baelzItemUseDesc_Eng_End   = "\"";
     public static string baelzItemUseDesc_Kor_Front = "벨즈가 \"";
     public static string baelzItemUseDesc_Kor_End   = "\" 아이템을 사용했습니다.";
+
+    public static string playerItemUseDesc_Eng_Front = "I used item \"";
+    public static string playerItemUseDesc_Eng_End = "\"";
+    public static string playerItemUseDesc_Kor_Front = "내가 \"";
+    public static string playerItemUseDesc_Kor_End = "\" 아이템을 사용했습니다.";
 }
