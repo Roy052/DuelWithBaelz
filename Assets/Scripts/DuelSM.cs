@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -23,6 +24,7 @@ public enum GameState
     BaelzThinking = 5,
     InJudge = 6,
     ChangingDice = 7,
+    SelectDice = 8,
 }
 
 public class DuelSM : Singleton
@@ -64,6 +66,7 @@ public class DuelSM : Singleton
     public Text textMyDiceCount;
 
     public bool isCurrentJobEnded;
+    public bool isSelectDiceEnded;
 
     //Right
     public ItemManager enemyItemManager;
@@ -163,6 +166,10 @@ public class DuelSM : Singleton
         myItemManager.Reset();
         enemyItemManager.Reset();
         objCheckedDiceBox.SetActive(false);
+
+        //UseItem
+        imgMsgUseItem.SetActive(false);
+        myItemManager.objSelectDiceCover.SetActive(false);
     }
 
     IEnumerator GameProcess()
@@ -291,6 +298,10 @@ public class DuelSM : Singleton
         textMyDiceCount.text = $"X {Math.Max(0, myDiceBox.diceCount)}";
 
         choiceDatas.ResetCurrentIdx(myDiceBox.diceCount + enemyDiceBox.diceCount);
+
+        checkedDice.SetActive(false);
+        enemyAI.ResetCheckedDices();
+        
 
         while (true)
         {
@@ -672,12 +683,14 @@ public class DuelSM : Singleton
         if (isPlayer)
         {
             int value = enemyDiceBox.GetValue(0);
-            checkedDice.Roll(value);
+            checkedDice.Roll(value, -1);
             checkedDice.SetActive(true);
+            objCheckedDiceBox.SetActive(true);
         }
         else
         {
-
+            int value = myDiceBox.GetValue(0);
+            enemyAI.SetCheckedDices(new List<int>() { value });
         }
     }
 
@@ -686,14 +699,6 @@ public class DuelSM : Singleton
         currentDmg += dmg;
         textEnemyLoseDice.text = $"-{currentDmg}";
         textMyLoseDice.text = $"-{currentDmg}";
-    }
-
-    public void Reroll(bool isPlayer, int idx)
-    {
-        if (isPlayer)
-            myDiceBox.Reroll(idx);
-        else
-            enemyDiceBox.Reroll(idx);
     }
 
     public void NoticeItemUse(bool isPlayer, ItemType type)
@@ -721,4 +726,34 @@ public class DuelSM : Singleton
         yield return Utilities.WaitForOneSecond;
         FadeManager.FadeOut(imgMsgUseItem, 1);
     }
+
+    public void SelectRollDice()
+    {
+        StartCoroutine(_SelectRerollDice());
+    }
+
+    IEnumerator _SelectRerollDice()
+    {
+        isSelectDiceEnded = false;
+        myItemManager.objSelectDiceCover.SetActive(true);
+
+        myDiceBox.SetDiceClickable();
+        yield return new WaitUntil(() => isSelectDiceEnded);
+
+        myDiceBox.SetDiceUnClickable();
+        myItemManager.objSelectDiceCover.SetActive(false);
+    }
+
+#if UNITY_EDITOR
+    private void Update()
+    {
+        for(int i = 0; i < 9; i++)
+        {
+            if (Input.GetKeyUp(KeyCode.Alpha1 + i))
+            {
+                myItemManager.AddItem((ItemType)i);
+            }
+        }
+    }
+#endif
 }

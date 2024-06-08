@@ -12,6 +12,8 @@ public class EnemyAI : Singleton
     List<float> notExistProbValues = new List<float>() { 1 };
     List<float> existProbValues = new List<float>() { 1 };
 
+    List<int> checkedDices = new List<int>();
+
     public float CalculateProbabilitySum(int diceAmmount, int sum)
     {
         if (sum < 0)
@@ -102,6 +104,11 @@ public class EnemyAI : Singleton
             case ChoiceType.Sum:
                 int sum = data.Item2 - duelSM.enemyDiceBox.GetValueSum();
                 diceAmmount = duelSM.myDiceBox.diceCount;
+                if(checkedDices != null && checkedDices.Count > 0)
+                {
+                    sum -= DiceBox.GetValueSum(checkedDices);
+                    diceAmmount += checkedDices.Count;
+                }
                 randValue = CalculateProbabilitySum(diceAmmount, sum);
                 break;
             case ChoiceType.Multiple:
@@ -109,6 +116,11 @@ public class EnemyAI : Singleton
             case ChoiceType.Rat:
                 int ratAmmount = data.Item2 - duelSM.enemyDiceBox.GetRatCount();
                 diceAmmount = duelSM.myDiceBox.diceCount;
+                if (checkedDices != null && checkedDices.Count > 0)
+                {
+                    ratAmmount-= DiceBox.GetRatCount(checkedDices);
+                    diceAmmount += checkedDices.Count;
+                }
                 randValue = CalculateProbabilityRat(diceAmmount, ratAmmount);
                 break;
         }
@@ -185,5 +197,15 @@ public class EnemyAI : Singleton
             return;
 
         itemManager.UseRandomItem();
+    }
+
+    public void SetCheckedDices(List<int> dices)
+    {
+        checkedDices = new List<int>(dices);
+    }
+
+    public void ResetCheckedDices()
+    {
+        checkedDices.Clear();
     }
 }

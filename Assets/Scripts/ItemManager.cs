@@ -11,6 +11,7 @@ public class ItemManager : Singleton, IPointerExitHandler
 
     public GameObject objItem;
     public Tooltip tooltip;
+    public GameObject objSelectDiceCover;
 
     List<Item> items = new List<Item>();
     Vector3 pos = Vector3.zero;
@@ -31,18 +32,14 @@ public class ItemManager : Singleton, IPointerExitHandler
             return;
 
         GameObject temp = Instantiate(objItem, objItem.transform.parent);
-        items.Add(temp.GetComponent<Item>());
-
-        Item tempItem = items[items.Count];
+        Item tempItem = temp.GetComponent<Item>();
         tempItem.Set(type, this, items.Count);
         tempItem.SetActive(true);
+        items.Add(tempItem);
     }
 
     public void UseItem(int idx)
     {
-        if (isPlayer == false)
-            return;
-
         if(idx >= items.Count)
         {
             Debug.LogError($"{idx} > {items.Count} Error");
@@ -62,6 +59,7 @@ public class ItemManager : Singleton, IPointerExitHandler
                 duelSM.AddDamage(1);
                 break;
             case ItemType.Watch:
+                duelSM.SelectRollDice();
                 break;
             case ItemType.DiceofWitness:
                 break;
@@ -72,6 +70,14 @@ public class ItemManager : Singleton, IPointerExitHandler
         duelSM.NoticeItemUse(isPlayer, items[idx].type);
         Destroy(items[idx].gameObject);
         items.RemoveAt(idx);
+    }
+
+    public void UseItemToClick(int idx)
+    {
+        if (isPlayer == false)
+            return;
+
+        UseItem(idx);
     }
 
     public void Reset()

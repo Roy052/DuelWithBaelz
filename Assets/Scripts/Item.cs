@@ -48,6 +48,6 @@ public class Item : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        itemManager.UseItem(idx);
+        itemManager.UseItemToClick(idx);
     }
 }

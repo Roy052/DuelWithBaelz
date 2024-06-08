@@ -14,11 +14,16 @@ public class DiceBox : MonoBehaviour
     {
         if (shadow)
             shadow.SetActive(true);
-        for(int i = 0; i < diceCount; i++)
+        for (int i = 0; i < diceCount; i++)
         {
             diceValues[i] = Random.Range(1, 7);
-            dices[i].Roll(diceValues[i]);
+            dices[i].Roll(diceValues[i], i);
             dices[i].SetActive(true);
+            dices[i].funcClick = (idx) => 
+            {
+                StartCoroutine(_Reroll(idx));
+            };
+            dices[i].btn.enabled = false;
         }
 
         for (int i = diceCount; i < dices.Length; i++)
@@ -35,6 +40,17 @@ public class DiceBox : MonoBehaviour
         }
         return sum;
     }
+
+    public static int GetValueSum(List<int> diceList)
+    {
+        int sum = 0;
+        for (int i = 0; i < diceList.Count; i++)
+        {
+            if (diceList[i] == 6) continue;
+            sum += diceList[i];
+        }
+        return sum;
+    }
     
     public int GetRatCount()
     {
@@ -42,6 +58,17 @@ public class DiceBox : MonoBehaviour
         for (int i = 0; i < diceCount; i++)
         {
             if (diceValues[i] == 6)
+                count++;
+        }
+        return count;
+    }
+
+    public static int GetRatCount(List<int> diceList)
+    {
+        int count = 0;
+        for (int i = 0; i < diceList.Count; i++)
+        {
+            if (diceList[i] == 6)
                 count++;
         }
         return count;
@@ -80,14 +107,39 @@ public class DiceBox : MonoBehaviour
             for (int i = current; i < diceCount; i++)
             {
                 diceValues[i] = Random.Range(1, 7);
-                dices[i].Roll(diceValues[i]);
+                dices[i].Roll(diceValues[i], i);
                 dices[i].SetActive(true);
+                dices[i].funcClick = (idx) =>
+                {
+                    StartCoroutine(_Reroll(idx));
+                };
+                dices[i].btn.enabled = false;
             }
         }
     }
 
     public void Reroll(int idx)
     {
-        dices[idx].Roll(Random.Range(1, 7));
+        dices[idx].Roll(Random.Range(1, 7), idx);
+    }
+
+    IEnumerator _Reroll(int idx)
+    {
+        Singleton.audioManager.PlaySFX(AudioManager.SFX.DiceRoll);
+        yield return new WaitForSeconds(2f);
+        Reroll(idx);
+        Singleton.duelSM.isSelectDiceEnded = true;
+    }
+
+    public void SetDiceClickable()
+    {
+        for (int i = 0; i < diceCount; i++)
+            dices[i].btn.enabled = true;
+    }
+
+    public void SetDiceUnClickable()
+    {
+        for (int i = 0; i < diceCount; i++)
+            dices[i].btn.enabled = false;
     }
 }
