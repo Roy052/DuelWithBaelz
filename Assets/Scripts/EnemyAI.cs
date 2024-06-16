@@ -149,7 +149,6 @@ public class EnemyAI : Singleton
 
     IEnumerator WaitForChoose()
     {
-        
         yield return new WaitForSeconds(2);
         duelSM.choiceBox.Show();
         List<float> probList = new List<float>();
@@ -191,8 +190,9 @@ public class EnemyAI : Singleton
         rate += duelSM.turnNum * 0.08f;
         rate += (duelSM.roundNum - duelSM.enemyDiceBox.diceCount) * 0.1f;
 
-        bool isUse = Random.Range(0, 1f) <= rate;
-
+        float temp = Random.Range(0, 1f);
+        bool isUse = temp  <= rate;
+        Debug.Log($"Bae Use Item Value {temp} <= {rate} : {isUse}");
         if (isUse == false)
             return;
 

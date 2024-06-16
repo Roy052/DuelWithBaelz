@@ -106,7 +106,7 @@ public class DuelSM : Singleton
     public Text textRetry;
     public Text textMenu;
 
-    public Image imageSword;
+    public Image[] imageSwords;
 
     public ScoreBox scoreBox;
 
@@ -219,12 +219,15 @@ public class DuelSM : Singleton
             PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.RollDice);
         }
 
+        //Dmg
         currentDmg = gameManager.mode == GameMode.LoseDouble ? 2 : 1;
         textEnemyLoseDice.text = $"-{currentDmg}";
         textMyLoseDice.text = $"-{currentDmg}";
+        SetDamageSword();
 
         objCheckedDiceBox.SetActive(false);
 
+        //Round
         textRound.text = "";
         imgEnemyPortrait.sprite = imageManager.portraitSprites[roundNum - 1];
         textEnemyName.text = Texts.enemyNames[roundNum - 1, (int)OptionList.languageType];
@@ -308,10 +311,13 @@ public class DuelSM : Singleton
             turnNum++;
             isMyChoice = !isMyChoice;
 
-            Vector3 tempScale = imageSword.transform.localScale;
-            tempScale.y = isMyChoice ? 1 : -1;
-            imageSword.transform.localScale = tempScale;
-
+            for(int i = 0; i < currentDmg; i++)
+            {
+                Vector3 tempScale = imageSwords[i].transform.localScale;
+                tempScale.y = isMyChoice ? 1 : -1;
+                imageSwords[i].transform.localScale = tempScale;
+            }
+            
             yield return Utilities.WaitForOneSecond;
 
             if (isMyChoice)
@@ -371,6 +377,7 @@ public class DuelSM : Singleton
     {
         yield return null;
 
+        gameState = GameState.InChoice;
         choiceBox.Show();
 
         if (playTutorial <= (int)TutorialProcess.AfterShowChoiceCard)
@@ -394,7 +401,6 @@ public class DuelSM : Singleton
 
         yield return new WaitUntil(() => isCurrentJobEnded);
         isCurrentJobEnded = false;
-        gameState = GameState.InChoice;
     }
 
     IEnumerator SelectDecision()
@@ -701,6 +707,15 @@ public class DuelSM : Singleton
         textMyLoseDice.text = $"-{currentDmg}";
     }
 
+    void SetDamageSword()
+    {
+        for(int i = 0; i < currentDmg; i++)
+            imageSwords[i].SetActive(true);
+
+        for (int i = currentDmg; i < imageSwords.Length; i++)
+            imageSwords[i].SetActive(false);
+    }
+
     public void NoticeItemUse(bool isPlayer, ItemType type)
     {
         StartCoroutine(_NoticeItemUse(isPlayer, type));
@@ -722,9 +737,9 @@ public class DuelSM : Singleton
             else
                 textMsgUseItem.text = Texts.playerItemUseDesc_Kor_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.playerItemUseDesc_Kor_End;
         }
-        FadeManager.FadeIn(imgMsgUseItem, 1);
+        StartCoroutine(FadeManager.FadeIn(imgMsgUseItem, 1));
         yield return Utilities.WaitForOneSecond;
-        FadeManager.FadeOut(imgMsgUseItem, 1);
+        StartCoroutine(FadeManager.FadeOut(imgMsgUseItem, 1));
     }
 
     public void SelectRollDice()

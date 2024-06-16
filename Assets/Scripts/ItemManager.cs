@@ -40,6 +40,9 @@ public class ItemManager : Singleton, IPointerExitHandler
 
     public void UseItem(int idx)
     {
+        if (duelSM.gameState != GameState.InChoice && duelSM.gameState != GameState.InDecision)
+            return;
+
         if(idx >= items.Count)
         {
             Debug.LogError($"{idx} > {items.Count} Error");
