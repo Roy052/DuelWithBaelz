@@ -184,8 +184,11 @@ public class EnemyAI : Singleton
         duelSM.choiceBox.Choice(maxIdx);
     }
 
-    public void DecideToUseItem()
+    public void DecideToUseItem(bool isForceToUse = false)
     {
+        if (itemManager.itemCount == 0)
+            return;
+
         float rate = 0f;
         rate += duelSM.turnNum * 0.08f;
         rate += (duelSM.roundNum - duelSM.enemyDiceBox.diceCount) * 0.1f;
@@ -193,7 +196,7 @@ public class EnemyAI : Singleton
         float temp = Random.Range(0, 1f);
         bool isUse = temp  <= rate;
         Debug.Log($"Bae Use Item Value {temp} <= {rate} : {isUse}");
-        if (isUse == false)
+        if (isUse == false && isForceToUse == false)
             return;
 
         itemManager.UseRandomItem();

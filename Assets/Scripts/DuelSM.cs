@@ -170,6 +170,9 @@ public class DuelSM : Singleton
         //UseItem
         imgMsgUseItem.SetActive(false);
         myItemManager.objSelectDiceCover.SetActive(false);
+
+        //ThinkingBox
+        thinkingBox.Hide();
     }
 
     IEnumerator GameProcess()
@@ -295,10 +298,7 @@ public class DuelSM : Singleton
         myDiceBox.Set();
         ShowDiceBoxes();
 
-        textEnemyDiceCount.SetActive(true);
-        textMyDiceCount.SetActive(true);
-        textEnemyDiceCount.text = $"X {Math.Max(0, enemyDiceBox.diceCount)}";
-        textMyDiceCount.text = $"X {Math.Max(0, myDiceBox.diceCount)}";
+        RefreshDiceCount();
 
         choiceDatas.ResetCurrentIdx(myDiceBox.diceCount + enemyDiceBox.diceCount);
 
@@ -555,7 +555,6 @@ public class DuelSM : Singleton
         }
     }
 
-
     IEnumerator AddItem(int round)
     {
         if (round / 2 == 0)
@@ -682,6 +681,8 @@ public class DuelSM : Singleton
             myDiceBox.AddDice(count, gameState != GameState.InJudge || gameState != GameState.BaelzThinking);
         else
             enemyDiceBox.AddDice(count, gameState != GameState.InJudge || gameState != GameState.BaelzThinking);
+
+        RefreshDiceCount();
     }
 
     public void CheckEnemyDice(bool isPlayer, int count)
@@ -705,6 +706,7 @@ public class DuelSM : Singleton
         currentDmg += dmg;
         textEnemyLoseDice.text = $"-{currentDmg}";
         textMyLoseDice.text = $"-{currentDmg}";
+        SetDamageSword();
     }
 
     void SetDamageSword()
@@ -738,7 +740,7 @@ public class DuelSM : Singleton
                 textMsgUseItem.text = Texts.playerItemUseDesc_Kor_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.playerItemUseDesc_Kor_End;
         }
         StartCoroutine(FadeManager.FadeIn(imgMsgUseItem, 1));
-        yield return Utilities.WaitForOneSecond;
+        yield return new WaitForSeconds(2f);
         StartCoroutine(FadeManager.FadeOut(imgMsgUseItem, 1));
     }
 
@@ -759,16 +761,30 @@ public class DuelSM : Singleton
         myItemManager.objSelectDiceCover.SetActive(false);
     }
 
+    void RefreshDiceCount()
+    {
+        textEnemyDiceCount.SetActive(true);
+        textMyDiceCount.SetActive(true);
+        textEnemyDiceCount.text = $"X {Math.Max(0, enemyDiceBox.diceCount)}";
+        textMyDiceCount.text = $"X {Math.Max(0, myDiceBox.diceCount)}";
+    }
+
 #if UNITY_EDITOR
     private void Update()
     {
         for(int i = 0; i < 9; i++)
         {
-            if (Input.GetKeyUp(KeyCode.Alpha1 + i))
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
             {
-                myItemManager.AddItem((ItemType)i);
+                if (Input.GetKey(KeyCode.LeftShift))
+                    enemyItemManager.AddItem((ItemType)i);
+                else
+                    myItemManager.AddItem((ItemType)i);
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.U))
+            enemyAI.DecideToUseItem(true);
     }
 #endif
 }

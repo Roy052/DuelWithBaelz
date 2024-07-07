@@ -9,8 +9,7 @@ public class ThinkingBox : MonoBehaviour
 
     public IEnumerator Show()
     {
-        foreach (GameObject obj in objDots)
-            obj.SetActive(false);
+        Hide();
 
         this.SetActive(true);
 
@@ -22,5 +21,11 @@ public class ThinkingBox : MonoBehaviour
 
         yield return delay;
         this.SetActive(false);
+    }
+
+    public void Hide()
+    {
+        foreach (GameObject obj in objDots)
+            obj.SetActive(false);
     }
 }

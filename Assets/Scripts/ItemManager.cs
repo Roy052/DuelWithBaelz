@@ -8,6 +8,10 @@ public class ItemManager : Singleton, IPointerExitHandler
     const int MaxAmmount = 4;
 
     public bool isPlayer;
+    public int itemCount
+    {
+        get { return items.Count; }
+    }
 
     public GameObject objItem;
     public Tooltip tooltip;
@@ -38,10 +42,13 @@ public class ItemManager : Singleton, IPointerExitHandler
         items.Add(tempItem);
     }
 
-    public void UseItem(int idx)
+    public void UseItem(int idx, bool isEnemy = false)
     {
-        if (duelSM.gameState != GameState.InChoice && duelSM.gameState != GameState.InDecision)
+        if (isEnemy == false && (duelSM.gameState != GameState.InChoice && duelSM.gameState != GameState.InDecision))
             return;
+
+        //if (isEnemy && duelSM.gameState != GameState.BaelzThinking)
+        //    return;
 
         if(idx >= items.Count)
         {
@@ -112,6 +119,6 @@ public class ItemManager : Singleton, IPointerExitHandler
     {
         int itemIdx = Random.Range(0, items.Count);
         duelSM.NoticeItemUse(isPlayer, items[itemIdx].type);
-        UseItem(itemIdx);
+        UseItem(itemIdx, true);
     }
 }
