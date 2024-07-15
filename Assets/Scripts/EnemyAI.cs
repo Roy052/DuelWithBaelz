@@ -107,7 +107,7 @@ public class EnemyAI : Singleton
                 if(checkedDices != null && checkedDices.Count > 0)
                 {
                     sum -= DiceBox.GetValueSum(checkedDices);
-                    diceAmmount += checkedDices.Count;
+                    diceAmmount -= checkedDices.Count;
                 }
                 randValue = CalculateProbabilitySum(diceAmmount, sum);
                 break;
@@ -118,8 +118,8 @@ public class EnemyAI : Singleton
                 diceAmmount = duelSM.myDiceBox.diceCount;
                 if (checkedDices != null && checkedDices.Count > 0)
                 {
-                    ratAmmount-= DiceBox.GetRatCount(checkedDices);
-                    diceAmmount += checkedDices.Count;
+                    ratAmmount -= DiceBox.GetRatCount(checkedDices);
+                    diceAmmount -= checkedDices.Count;
                 }
                 randValue = CalculateProbabilityRat(diceAmmount, ratAmmount);
                 break;
@@ -161,6 +161,11 @@ public class EnemyAI : Singleton
                 case ChoiceType.Sum:
                     int sum = data.Item2 - duelSM.enemyDiceBox.GetValueSum();
                     diceAmmount = duelSM.myDiceBox.diceCount;
+                    if (checkedDices != null && checkedDices.Count > 0)
+                    {
+                        sum -= DiceBox.GetValueSum(checkedDices);
+                        diceAmmount -= checkedDices.Count;
+                    }
                     probList.Add(CalculateProbabilitySum(diceAmmount, sum));
                     break;
                 case ChoiceType.Multiple:
@@ -168,6 +173,11 @@ public class EnemyAI : Singleton
                 case ChoiceType.Rat:
                     int ratAmmount = data.Item2 - duelSM.enemyDiceBox.GetRatCount();
                     diceAmmount = duelSM.myDiceBox.diceCount;
+                    if (checkedDices != null && checkedDices.Count > 0)
+                    {
+                        ratAmmount -= DiceBox.GetRatCount(checkedDices);
+                        diceAmmount -= checkedDices.Count;
+                    }
                     probList.Add(CalculateProbabilityRat(diceAmmount, ratAmmount));
                     break;
             }
