@@ -740,13 +740,18 @@ public class DuelSM : Singleton
                 textMsgUseItem.text = Texts.playerItemUseDesc_Kor_Front + Texts.itemNames[(int)type, (int)OptionList.languageType] + Texts.playerItemUseDesc_Kor_End;
         }
         StartCoroutine(FadeManager.FadeIn(imgMsgUseItem, 1));
+        StartCoroutine(FadeManager.FadeIn(textMsgUseItem, 1));
         yield return new WaitForSeconds(2f);
         StartCoroutine(FadeManager.FadeOut(imgMsgUseItem, 1));
+        StartCoroutine(FadeManager.FadeOut(textMsgUseItem, 1));
     }
 
-    public void SelectRollDice()
+    public void SelectReRollDice(bool isPlayer)
     {
-        StartCoroutine(_SelectRerollDice());
+        if(isPlayer)
+            StartCoroutine(_SelectRerollDice());
+        else
+            enemyDiceBox.Reroll(Random.Range(0, enemyDiceBox.diceCount));
     }
 
     IEnumerator _SelectRerollDice()

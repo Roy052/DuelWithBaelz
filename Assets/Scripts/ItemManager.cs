@@ -69,7 +69,7 @@ public class ItemManager : Singleton, IPointerExitHandler
                 duelSM.AddDamage(1);
                 break;
             case ItemType.Watch:
-                duelSM.SelectRollDice();
+                duelSM.SelectReRollDice(isPlayer);
                 break;
             case ItemType.DiceofWitness:
                 break;
