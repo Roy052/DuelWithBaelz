@@ -18,8 +18,12 @@ public enum TutorialProcess
 
 public class TutorialHelper : MonoBehaviour
 {
+    public Image[] imgCharacters;
+    public Material matGreyScale;
+
     public Image shadow;
     public GameObject objDesc;
+    public Text textSpeaker;
     public Text desc;
     public static AudioSource typingSound;
 
@@ -34,12 +38,42 @@ public class TutorialHelper : MonoBehaviour
         typingSound = GetComponent<AudioSource>();
     }
 
+    CharacterType beforeChar = CharacterType.None;
+    public void ShowImage(CharacterType type)
+    {
+        imgCharacters[(int)type].SetActive(true);
+        imgCharacters[(int)type].material = null;
+        if (beforeChar != CharacterType.None)
+            imgCharacters[(int)beforeChar].material = matGreyScale;
+        
+        if(type > CharacterType.Me)
+        {
+            for(int i = (int)CharacterType.Hayko; i < (int)CharacterType.Max; i++)
+                if (i != (int)type)
+                    imgCharacters[i].SetActive(false);
+        }
+        beforeChar = type;
+    }
+
+    public void GoNext()
+    {
+        goNext++;
+    }
+
+    static int goNext = -1;
     public static IEnumerator Typing(Text desc, string str)
     {
+        goNext = -1;
         typingSound.Play();
         desc.text = "";
         for (int i = 0; i < str.Length; i++)
         {
+            if(goNext == 0)
+            {
+                desc.text = str;
+                break;
+            }
+
             desc.text += str[i];
             yield return delay;
         }
@@ -48,17 +82,50 @@ public class TutorialHelper : MonoBehaviour
 
     public IEnumerator ShowTutorial(int num)
     {
-        shadow.SetActive(true);
-        objDesc.SetActive(true);
-
-        for(int i = 0; i < 4; i++)
+        List<Tutorial> tutorialList = new List<Tutorial>();
+        foreach(Tutorial item in Tutorials.tutorials)
         {
-            if (string.IsNullOrEmpty(Texts.TutorialTexts[(int)OptionList.languageType, num, i]))
-                break;
-
-            yield return Typing(desc, Texts.TutorialTexts[(int)OptionList.languageType, num, i]);
-            yield return Utilities.WaitForOneSecond;
+            if (item.id == num)
+                tutorialList.Add(item);
         }
+
+        for(int i = 0; i < tutorialList.Count; i++)
+        {
+            switch (tutorialList[i].tutorialType)
+            {
+                case TutorialType.Dialog:
+                    shadow.SetActive(true);
+                    objDesc.SetActive(true);
+                    textSpeaker.SetActive(true);
+                    ShowImage(tutorialList[i].characterType);
+                    textSpeaker.text = Texts.dialogCharacterNames[(int)tutorialList[i].characterType, (int)OptionList.languageType];
+                    yield return Typing(desc, tutorialList[i].Dialog[(int)OptionList.languageType]);
+                    goNext = 0;
+                    yield return new WaitUntil(() => goNext == 1);
+                    break;
+                case TutorialType.Button:
+                    shadow.SetActive(false);
+                    objDesc.SetActive(false);
+                    goNext = 0;
+                    yield return new WaitUntil(() => goNext == 1);
+                    break;
+                case TutorialType.SelectCard:
+                    shadow.SetActive(false);
+                    objDesc.SetActive(false);
+                    goNext = 0;
+                    yield return new WaitUntil(() => goNext == 1);
+                    break;
+                case TutorialType.SelectDecision:
+                    shadow.SetActive(false);
+                    objDesc.SetActive(false);
+                    goNext = 0;
+                    yield return new WaitUntil(() => goNext == 1);
+                    break;
+            }
+        }
+
+        for (int i = 0; i < imgCharacters.Length; i++)
+            imgCharacters[i].SetActive(false);
         shadow.SetActive(false);
         objDesc.SetActive(false);
     }
