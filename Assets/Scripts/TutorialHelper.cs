@@ -6,12 +6,12 @@ using UnityEngine.UI;
 public enum TutorialProcess
 {
     StartTutorial = 0,
-    RollDice = 1,
-    BeforeShowChoiceCard = 2,
-    AfterShowChoiceCard = 3,
-    BeforeShowDecision = 4,
-    AfterShowDecision = 5,
-    InJudge = 6,
+    BeforeRollDice = 1,
+    ClickRollDiceBtn = 2,
+    CheckDiceAndChoice = 3,
+    SelectChoice = 4,
+    BaeThinkAboutDecision = 5,
+    SelectDecision = 6,
     UsingItem = 7,
     EndTutorial = 8,
 }
@@ -23,6 +23,8 @@ public class TutorialHelper : MonoBehaviour
 
     public Image shadow;
     public GameObject objDesc;
+    public GameObject objCursor;
+    public GameObject objBtn;
     public Text textSpeaker;
     public Text desc;
     public static AudioSource typingSound;
@@ -41,10 +43,11 @@ public class TutorialHelper : MonoBehaviour
     CharacterType beforeChar = CharacterType.None;
     public void ShowImage(CharacterType type)
     {
-        imgCharacters[(int)type].SetActive(true);
-        imgCharacters[(int)type].material = null;
         if (beforeChar != CharacterType.None)
             imgCharacters[(int)beforeChar].material = matGreyScale;
+
+        imgCharacters[(int)type].SetActive(true);
+        imgCharacters[(int)type].material = null;
         
         if(type > CharacterType.Me)
         {
@@ -106,12 +109,14 @@ public class TutorialHelper : MonoBehaviour
                 case TutorialType.Button:
                     shadow.SetActive(false);
                     objDesc.SetActive(false);
+                    objBtn.SetActive(true);
                     goNext = 0;
                     yield return new WaitUntil(() => goNext == 1);
                     break;
                 case TutorialType.SelectCard:
                     shadow.SetActive(false);
                     objDesc.SetActive(false);
+                    objCursor.SetActive(true);
                     goNext = 0;
                     yield return new WaitUntil(() => goNext == 1);
                     break;
@@ -124,10 +129,7 @@ public class TutorialHelper : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < imgCharacters.Length; i++)
-            imgCharacters[i].SetActive(false);
-        shadow.SetActive(false);
-        objDesc.SetActive(false);
+        ResetUI();
     }
 
     public int TransferObject(GameObject obj)
@@ -154,5 +156,15 @@ public class TutorialHelper : MonoBehaviour
             ReturnObject(ids[0]);
             ids.RemoveAt(0);
         }
+    }
+
+    public void ResetUI()
+    {
+        for (int i = 0; i < imgCharacters.Length; i++)
+            imgCharacters[i].SetActive(false);
+        shadow.SetActive(false);
+        objDesc.SetActive(false);
+        objBtn.SetActive(false);
+        objCursor.SetActive(false);
     }
 }

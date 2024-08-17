@@ -91,7 +91,6 @@ public class DuelSM : Singleton
 
     //Tutorials
     public TutorialHelper tutorialHelper;
-    public GameObject objCursor;
     public GameObject objTextBox;
     public GameObject objSkipTutorial;
     public Text textSkipTutorial;
@@ -152,7 +151,7 @@ public class DuelSM : Singleton
 
         scoreBox.SetActive(false);
         portraitGameOver.SetActive(false);
-        objCursor.SetActive(false);
+        tutorialHelper.ResetUI();
         (scoreBox.transform as RectTransform).anchoredPosition = new Vector2(0, 0);
         objTextBox.SetActive(false);
 
@@ -218,8 +217,8 @@ public class DuelSM : Singleton
         if(playTutorial == (int)TutorialProcess.StartTutorial)
         {
             yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.StartTutorial));
-            playTutorial = (int)TutorialProcess.RollDice;
-            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.RollDice);
+            playTutorial = (int)TutorialProcess.BeforeRollDice;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.BeforeRollDice);
         }
 
         //Dmg
@@ -251,7 +250,7 @@ public class DuelSM : Singleton
         if(roundNum >= 2 && playTutorial == (int)TutorialProcess.UsingItem)
         {
             yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.UsingItem));
-            playTutorial = (int)TutorialProcess.UsingItem;
+            playTutorial = (int)TutorialProcess.EndTutorial;
             PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.EndTutorial);
         }
 
@@ -282,14 +281,21 @@ public class DuelSM : Singleton
     {
         isMyChoice = roundNum % 2 == 0;
 
-        //Roll Dice
-        if (playTutorial <= (int)TutorialProcess.RollDice)
+        //Before Roll Dice
+        if (playTutorial <= (int)TutorialProcess.BeforeRollDice)
         {
-            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.RollDice));
-            playTutorial = (int)TutorialProcess.BeforeShowChoiceCard;
-            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.BeforeShowChoiceCard);
+            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.BeforeRollDice));
+            playTutorial = (int)TutorialProcess.ClickRollDiceBtn;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.ClickRollDiceBtn);
         }
 
+        //Roll Dice Btn
+        if (playTutorial <= (int)TutorialProcess.ClickRollDiceBtn)
+        {
+            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.ClickRollDiceBtn));
+            playTutorial = (int)TutorialProcess.CheckDiceAndChoice;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.CheckDiceAndChoice);
+        }
         audioManager.PlaySFX(AudioManager.SFX.DiceRoll);
 
         yield return new WaitForSeconds(2f);
@@ -327,15 +333,6 @@ public class DuelSM : Singleton
 
             if (isMyChoice)
             {
-                //Before Dice
-                if (playTutorial <= (int)TutorialProcess.BeforeShowChoiceCard)
-                {
-                    yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.BeforeShowChoiceCard));
-                    playTutorial = (int)TutorialProcess.AfterShowChoiceCard;
-                    PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.AfterShowChoiceCard);
-                }
-
-
                 yield return StartCoroutine(SelectChoice());
             }
             else
@@ -380,22 +377,37 @@ public class DuelSM : Singleton
         gameState = GameState.InChoice;
         choiceBox.Show();
 
-        if (playTutorial <= (int)TutorialProcess.AfterShowChoiceCard)
+        //Check Dice And Choice
+        if (playTutorial <= (int)TutorialProcess.CheckDiceAndChoice)
         {
-            objCursor.SetActive(true);
-            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.AfterShowChoiceCard));
-            objCursor.SetActive(false);
-            playTutorial = (int)TutorialProcess.BeforeShowDecision;
-            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.BeforeShowDecision);
+            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.CheckDiceAndChoice));
+            playTutorial = (int)TutorialProcess.SelectChoice;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.SelectChoice);
+        }
+
+        //Select Choice
+        if (playTutorial <= (int)TutorialProcess.SelectChoice)
+        {
+            StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.SelectChoice));
+            playTutorial = (int)TutorialProcess.BaeThinkAboutDecision;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.BaeThinkAboutDecision);
         }
 
         yield return new WaitUntil(() => isCurrentJobEnded);
+        tutorialHelper.GoNext();
         isCurrentJobEnded = false;
 
         gameState = GameState.BaelzThinking;
         choiceBox.Hide();
+        //Bae Think
+        if (playTutorial <= (int)TutorialProcess.BaeThinkAboutDecision)
+        {
+            StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.BaeThinkAboutDecision));
+            playTutorial = (int)TutorialProcess.SelectDecision;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.SelectDecision);
+        }
         enemyAI.Decide();
-
+        
         audioManager.PlaySFX(AudioManager.SFX.Hmm);
         StartCoroutine(thinkingBox.Show());
 
@@ -416,21 +428,15 @@ public class DuelSM : Singleton
         isCurrentJobEnded = false;
 
         gameState = GameState.InDecision;
-        if (playTutorial <= (int)TutorialProcess.BeforeShowDecision)
-        {
-            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.BeforeShowDecision));
-            playTutorial = (int)TutorialProcess.AfterShowDecision;
-            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.AfterShowDecision);
-        }
-
+        
         choiceBox.Hide();
         decisionBox.Show();
 
-        if (playTutorial <= (int)TutorialProcess.AfterShowDecision)
+        if (playTutorial <= (int)TutorialProcess.SelectDecision)
         {
-            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.AfterShowDecision));
-            playTutorial = (int)TutorialProcess.InJudge;
-            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.InJudge);
+            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.SelectDecision));
+            playTutorial = (int)TutorialProcess.UsingItem;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.UsingItem);
         }
 
         yield return new WaitUntil(() => isCurrentJobEnded);
@@ -488,13 +494,6 @@ public class DuelSM : Singleton
         yield return Utilities.WaitForOneSecond;
 
         yield return StartCoroutine(FadeManager.FadeOut(imgChallengeResults[(int)result], 1));
-
-        if (playTutorial <= (int)TutorialProcess.InJudge)
-        {
-            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.InJudge));
-            playTutorial = (int)TutorialProcess.UsingItem;
-            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.UsingItem);
-        }
 
         if ((isMyChoice && isChallengeSuccess == false) || (isMyChoice == false && isChallengeSuccess))
         {
