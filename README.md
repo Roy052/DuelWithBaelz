@@ -14,11 +14,10 @@
      벨즈와 주사위를 걸고 대결을 펼친다. <br><br>
      내 주사위를 가지고 상대의 수에 대응하라.
     <h3> 게임 플레이 </h3>
-     WASD 키 혹은 방향키로 캐릭터를 움직인다.<br><br>
-     ESC 키를 이용해 메뉴로 혹은 게임을 종료할 수 있다.<br><br>
-     리미터를 제외한 다른 물체와 부딪히면 이동속도가 느려진다.<br><br>
-     리미터와 닿으면 리미터 게이지가 오르고, 게이지가 최대가 되면 몸집이 커지고 이동속도가 내려가지 않는다.<br><br>
-     해왕성 너머까지 이동하자.
+     매 라운드 주사위가 주어지고 서로 주사위와 관련된 선택지를 고릅니다.<br><br>
+     골라진 선택지를 보고 상대방은 이 선택지가 참인지 여부를 결정합니다.<br><br>
+     참이 아니라고 생각하면 도전 버튼을 누를 수 있고 이 도전의 결과에 따라 1명이 주사위를 잃습니다.<br><br>
+     모든 주사위를 잃는 사람이 생기면 라운드가 종료되고 상대방이 주사위를 모두 잃었을 경우 다음 라운드로 진행합니다.<br><br>
   </div> 
   <div>
     <h2> 게임 스크린샷 </h2>
@@ -34,87 +33,50 @@
   </div>
   <div>
     <h2> 배운 점 </h2>
-      
-  </div>
-  <div>
-    <h2> 수정할 점 </h2>
-      컨텐츠를 추가한다.
-   <h2> Design Picture </h2>
-   <table>
-        <td><img src = "https://postfiles.pstatic.net/MjAyMjA4MDFfMjcy/MDAxNjU5MzMwODAxOTk1.-gbZMXUDyhOMz_i8yUj_aAh4hzSgm6293HBrNPNIvTAg.ZZtycSu828JGsjLCsBnqv03vtyKRWoA7w_eJ4Rt68qkg.JPEG.tdj04131/KakaoTalk_20220801_141114267_03.jpg?type=w773" height = 500></td>
-     <td><img src = "https://postfiles.pstatic.net/MjAyMjA4MDFfMTI3/MDAxNjU5MzMwODAxOTI1.GWwJzBX5V1b-ubqEyGZDpCZPxJOMTC3ju36pHG82cYQg.lAN9ou64svdpNpIa3q-vCsura4jk8hso3nfKY1Vb6Xgg.JPEG.tdj04131/KakaoTalk_20220801_141114267_04.jpg?type=w773" height = 500></td>
-      </table>
+    회사에서 배운 다양한 유니티 C# 기능을 활용했다. <br><br>
+      this 기능이라던지, anchoredPosition을 이용하는 방식이라던지 UnityAction을 활용하는 방식 등. <br><br>
+      Dictionary, Pair, List 등 다양한 자료구조를 활용하게 되었다.
   </div>
 
    <div>
        <h2> 주요 코드 </h2>
-       <h4> GameSM Update 함수 속 거리 및 장애물 생성 </h4>
+       <h4> Enemy AI 값 계산 </h4>
     </div>
     
 ```csharp
+Dictionary<(int, int), float> probSumValues = new Dictionary<(int, int), float>();
+Dictionary<(int, int), float> probRatValues = new Dictionary<(int, int), float>();
+List<float> notExistProbValues = new List<float>() { 1 };
+List<float> existProbValues = new List<float>() { 1 };
 
-//거리 계산
-if (gameEnd == false)
-    distance += 2 * speed * Time.deltaTime;
-    else
-        distance = endDistance;
+List<int> checkedDices = new List<int>();
 
-//거리 출력
-distanceText.text = ((int) distance).ToString();
-distanceSlider.value = (float) (distance / endDistance);
-
-//거리에 따라 행성 출현
-if (planetCount < planetLocation.Length && distance > planetLocation[planetCount])
+public float CalculateProbabilitySum(int diceAmmount, int sum)
 {
-    GameObject temp = Instantiate(planets[planetCount],
-    new Vector3(12, 0, 0), Quaternion.identity);
-    planetCount++;
-}
+    if (sum < 0)
+        return 1;
 
-//배경 생성(배경 이미지를 이동 후 파괴, 생성)
-beforeBackground.transform.position -= new Vector3(speed * Time.deltaTime, 0, 0);
-currentBackground.transform.position -= new Vector3(speed * Time.deltaTime, 0, 0);
+    if (probSumValues.ContainsKey((diceAmmount, sum)))
+        return probSumValues[(diceAmmount, sum)] + Random.Range(-MistakeValue, MistakeValue);
 
-if (beforeBackground.transform.position.x < -lengthBackground * 2 + 0.7f)
-{
-    Destroy(beforeBackground);
-    beforeBackground = currentBackground;
-    currentBackground = Instantiate(currentBackground, new Vector3(2 * lengthBackground, 0, 0), Quaternion.identity);
-}
+    int minValue = diceAmmount;
+    int averageValue = diceAmmount * 3;
+    int maxValue = diceAmmount * 5;
 
-//장애물 생성
-timeCheck += Time.deltaTime;
-if (gameEnd == false && timeCheck >= 1 + nextTime - (speed / 15.0))
-{
-    int typetemp = Random.Range(0, obstaclePrefabArray.Length);
-    GameObject temp =
-    Instantiate(obstaclePrefabArray[typetemp],
-    new Vector3(12, Random.Range(-border, border), 0), Quaternion.identity);
-    if(typetemp == 0)
+    float lineWidth = Mathf.Min(averageValue - minValue, maxValue - sum) / (float)(maxValue - averageValue);
+    float prob = lineWidth * lineWidth * 0.5f;
+
+    if (sum < averageValue)
     {
-        temp.GetComponent<Dice>().angle = Random.Range(0, 359);
+        lineWidth = (sum - minValue) / (float)(averageValue - minValue);
+        prob += 0.5f - (lineWidth * lineWidth * 0.5f);
     }
-    obstacleList.Add(temp);
-    timeCheck = 0;
-    nextTime = Random.Range(0.5f, 1.7f);
-    starCount++;
-    //배경 별 생성
-    if(starCount >= 3)
-    {
-        StartCoroutine(StarGenerate(2, 10));
-        starCount = 0;
-    }
-}
 
-//리미터 아이템 생성
-timeCheck1 += Time.deltaTime;
-if(gameEnd == false && bigSanaModeON == false && timeCheck1 >= 4 + limiterNextTime - (speed / 15.0))
-{
-    GameObject temp =
-    Instantiate(limiterGet,
-    new Vector3(12, Random.Range(-border, border), 0), Quaternion.identity);
-    temp.GetComponent<Dice>().angle = Random.Range(0, 359);
-    timeCheck1 = 0;
-    limiterNextTime = Random.Range(1f, 3.4f);
+    Debug.Log($"P({sum},{diceAmmount}) = {prob}");
+
+    probSumValues.Add((diceAmmount, sum), prob);
+
+    prob += Random.Range(-MistakeValue, MistakeValue);
+
+    return prob;
 }
-```
