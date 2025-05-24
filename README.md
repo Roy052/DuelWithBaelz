@@ -80,3 +80,102 @@ public float CalculateProbabilitySum(int diceAmmount, int sum)
 
     return prob;
 }
+```
+<div>
+       <h4> 게임 진행 (DuelSM) </h4>
+</div>
+    
+```csharp
+IEnumerator SingleProcess(int roundNum)
+    {
+        isMyChoice = roundNum % 2 == 0;
+
+        //Before Roll Dice
+        if (playTutorial <= (int)TutorialProcess.BeforeRollDice)
+        {
+            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.BeforeRollDice));
+            playTutorial = (int)TutorialProcess.ClickRollDiceBtn;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.ClickRollDiceBtn);
+        }
+
+        //Roll Dice Btn
+        if (playTutorial <= (int)TutorialProcess.ClickRollDiceBtn)
+        {
+            yield return StartCoroutine(tutorialHelper.ShowTutorial((int)TutorialProcess.ClickRollDiceBtn));
+            playTutorial = (int)TutorialProcess.CheckDiceAndChoice;
+            PlayerPrefs.SetInt(TutorialKey, (int)TutorialProcess.CheckDiceAndChoice);
+        }
+        audioManager.PlaySFX(AudioManager.SFX.DiceRoll);
+
+        yield return new WaitForSeconds(2f);
+
+        enemyDiceBox.Set();
+        myDiceBox.Set();
+        ShowDiceBoxes();
+
+        RefreshDiceCount();
+
+        choiceDatas.ResetCurrentIdx(myDiceBox.diceCount + enemyDiceBox.diceCount);
+
+        checkedDice.SetActive(false);
+        enemyAI.ResetCheckedDices();
+        
+
+        while (true)
+        {
+            turnNum++;
+            isMyChoice = !isMyChoice;
+
+            for(int i = 0; i < currentDmg; i++)
+            {
+                Vector3 tempScale = imageSwords[i].transform.localScale;
+                tempScale.y = isMyChoice ? 1 : -1;
+                imageSwords[i].transform.localScale = tempScale;
+            }
+            
+            yield return Utilities.WaitForOneSecond;
+
+            if (isMyChoice)
+                gameState = GameState.InChoice;
+            else
+                gameState = GameState.InDecision;
+
+            if (isMyChoice)
+            {
+                yield return StartCoroutine(SelectChoice());
+            }
+            else
+            {
+                yield return StartCoroutine(SelectDecision());
+            }
+
+            yield return Utilities.WaitForOneSecond;
+
+            if (isChallengeStarted)
+            {
+                gameState = GameState.InJudge;
+                audioManager.bgmAudioSource.Pause();
+                audioManager.PlaySFX(AudioManager.SFX.Challenge);
+                yield return StartCoroutine(FadeManager.FadeIn(imgChallenge, 1));
+
+                yield return Utilities.WaitForOneSecond;
+
+                yield return StartCoroutine(FadeManager.FadeOut(imgChallenge, 1));
+                audioManager.bgmAudioSource.Play();
+
+                yield return StartCoroutine(Judge());
+
+                yield return Utilities.WaitForOneSecond;
+
+                HideDiceBoxes();
+                break;
+            }
+
+            if (myDiceBox.diceCount == 0 || enemyDiceBox.diceCount == 0)
+                break;
+        }
+
+        yield return null;
+        isCurrentJobEnded = false;
+    }
+```
